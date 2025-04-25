@@ -1,0 +1,211 @@
+{% extends "base.html" %} {% block title %}Detail Tamu - Sistem Manajemen
+Hotel{% endblock %} {% block page_title %}Detail Tamu{% endblock %} {% block
+breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('list_guests') }}">Tamu</a></li>
+<li class="breadcrumb-item active">Detail Tamu</li>
+{% endblock %} {% block content %}
+<div class="row">
+  <!-- Informasi Tamu -->
+  <div class="col-md-4">
+    <div class="card shadow-sm mb-4">
+      <div
+        class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
+      >
+        <h5 class="mb-0"><i class="fas fa-user me-2"></i>Informasi Tamu</h5>
+        <a
+          href="{{ url_for('edit_guest', guest_uid=guest.guest_uid) }}"
+          class="btn btn-sm btn-light"
+        >
+          <i class="fas fa-edit me-1"></i>Edit
+        </a>
+      </div>
+      <div class="card-body">
+        <div class="mb-3 text-center">
+          <div class="display-1 text-primary mb-3">
+            <i class="fas fa-user-circle"></i>
+          </div>
+          <h4>{{ guest.name }}</h4>
+          <p class="text-muted mb-0">{{ guest.guest_uid }}</p>
+        </div>
+        <hr />
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item px-0">
+            <div class="row">
+              <div class="col-4"><strong>ID Tamu</strong></div>
+              <div class="col-8">{{ guest.guest_uid }}</div>
+            </div>
+          </li>
+          <li class="list-group-item px-0">
+            <div class="row">
+              <div class="col-4"><strong>Nama</strong></div>
+              <div class="col-8">{{ guest.name }}</div>
+            </div>
+          </li>
+          <li class="list-group-item px-0">
+            <div class="row">
+              <div class="col-4"><strong>Email</strong></div>
+              <div class="col-8">
+                <a href="mailto:{{ guest.email }}">{{ guest.email }}</a>
+              </div>
+            </div>
+          </li>
+          <li class="list-group-item px-0">
+            <div class="row">
+              <div class="col-4"><strong>Telepon</strong></div>
+              <div class="col-8">
+                {% if guest.phone %}
+                <a href="tel:{{ guest.phone }}">{{ guest.phone }}</a>
+                {% else %}
+                <span class="text-muted">Tidak tersedia</span>
+                {% endif %}
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="card-footer">
+        <div class="d-flex justify-content-between">
+          <a
+            href="{{ url_for('list_guests') }}"
+            class="btn btn-outline-secondary btn-sm"
+          >
+            <i class="fas fa-arrow-left me-1"></i>Kembali
+          </a>
+          <button
+            type="button"
+            class="btn btn-danger btn-sm"
+            data-bs-toggle="modal"
+            data-bs-target="#deleteGuestModal"
+          >
+            <i class="fas fa-trash me-1"></i>Hapus Tamu
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Riwayat Booking -->
+  <div class="col-md-8">
+    <div class="card shadow-sm">
+      <div
+        class="card-header bg-success text-white d-flex justify-content-between align-items-center"
+      >
+        <h5 class="mb-0">
+          <i class="fas fa-calendar-check me-2"></i>Riwayat Booking
+        </h5>
+        <a href="{{ url_for('add_booking') }}" class="btn btn-sm btn-light">
+          <i class="fas fa-plus me-1"></i>Buat Booking Baru
+        </a>
+      </div>
+      <div class="card-body">
+        {% if bookings %}
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>ID Booking</th>
+                <th>Tipe Kamar</th>
+                <th>Check-in</th>
+                <th>Check-out</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for booking in bookings %}
+              <tr>
+                <td>{{ booking.booking_uid }}</td>
+                <td>{{ booking.room_type_code }}</td>
+                <td>{{ booking.check_in_date }}</td>
+                <td>{{ booking.check_out_date }}</td>
+                <td class="currency">{{ booking.total_price }}</td>
+                <td>
+                  {% if booking.status == 'confirmed' %}
+                  <span class="badge bg-success">Dikonfirmasi</span>
+                  {% elif booking.status == 'pending_payment' %}
+                  <span class="badge bg-warning">Menunggu Pembayaran</span>
+                  {% elif booking.status == 'cancelled' %}
+                  <span class="badge bg-danger">Dibatalkan</span>
+                  {% else %}
+                  <span class="badge bg-secondary">{{ booking.status }}</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <a
+                    href="{{ url_for('view_booking', booking_uid=booking.booking_uid) }}"
+                    class="btn btn-sm btn-outline-primary"
+                  >
+                    <i class="fas fa-eye"></i>
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+          <div class="display-1 text-muted mb-3">
+            <i class="fas fa-calendar-times"></i>
+          </div>
+          <h5>Belum Ada Booking</h5>
+          <p class="text-muted">Tamu ini belum memiliki riwayat booking.</p>
+          <a href="{{ url_for('add_booking') }}" class="btn btn-success mt-2">
+            <i class="fas fa-plus me-1"></i>Buat Booking Baru
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Konfirmasi Hapus -->
+<div class="modal fade" id="deleteGuestModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">Konfirmasi Hapus Tamu</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p>
+          Apakah Anda yakin ingin menghapus tamu
+          <strong>{{ guest.name }}</strong> ({{ guest.guest_uid }})?
+        </p>
+        <p class="text-danger">
+          <small
+            >Tindakan ini tidak bisa dibatalkan. Semua data terkait termasuk
+            riwayat booking mungkin akan terpengaruh.</small
+          >
+        </p>
+        {% if bookings %}
+        <div class="alert alert-warning">
+          <i class="fas fa-exclamation-triangle me-2"></i>
+          <strong>Perhatian!</strong> Tamu ini memiliki {{ bookings|length }}
+          data booking. Menghapus tamu dapat menyebabkan masalah pada data
+          booking yang terkait.
+        </div>
+        {% endif %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Batal
+        </button>
+        <form
+          action="{{ url_for('delete_guest', guest_uid=guest.guest_uid) }}"
+          method="post"
+        >
+          <button type="submit" class="btn btn-danger btn-delete">Hapus</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

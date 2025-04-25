@@ -1,0 +1,170 @@
+{% extends "base.html" %} {% block title %}Beranda - Sistem Manajemen Hotel{%
+endblock %} {% block page_title %}Selamat Datang di Sistem Manajemen Hotel{%
+endblock %} {% block breadcrumb %}
+<li class="breadcrumb-item active">Beranda</li>
+{% endblock %} {% block content %}
+<div class="row">
+  <div class="col-md-8">
+    <div class="card shadow-sm mb-4">
+      <div class="card-body">
+        <h3 class="card-title">Azure Horizon Hotel</h3>
+        <p class="card-text">
+          Sistem manajemen hotel terintegrasi yang menghubungkan layanan tamu,
+          pemesanan, kamar, dan pembayaran. Platform ini dirancang untuk
+          memudahkan pengelolaan hotel secara efisien dan efektif.
+        </p>
+        <div class="d-flex justify-content-between mt-4">
+          <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+            <i class="fas fa-tachometer-alt me-2"></i>Buka Dashboard
+          </a>
+          <a href="{{ url_for('add_booking') }}" class="btn btn-success">
+            <i class="fas fa-calendar-plus me-2"></i>Buat Booking Baru
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <h5 class="card-title">
+              <i class="fas fa-users me-2 text-primary"></i>Manajemen Tamu
+            </h5>
+            <p class="card-text">
+              Kelola data tamu, riwayat kunjungan, dan preferensi untuk
+              meningkatkan pengalaman pengguna.
+            </p>
+            <a
+              href="{{ url_for('list_guests') }}"
+              class="btn btn-outline-primary"
+              >Lihat Tamu</a
+            >
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <h5 class="card-title">
+              <i class="fas fa-door-closed me-2 text-success"></i>Manajemen
+              Kamar
+            </h5>
+            <p class="card-text">
+              Atur tipe kamar, harga, ketersediaan, dan informasi lengkap
+              tentang fasilitas.
+            </p>
+            <a
+              href="{{ url_for('list_rooms') }}"
+              class="btn btn-outline-success"
+              >Lihat Kamar</a
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <h5 class="card-title">
+              <i class="fas fa-calendar-check me-2 text-info"></i>Manajemen
+              Booking
+            </h5>
+            <p class="card-text">
+              Kelola pemesanan kamar, check-in/out, perpanjangan dan pembatalan.
+            </p>
+            <a
+              href="{{ url_for('list_bookings') }}"
+              class="btn btn-outline-info"
+              >Lihat Booking</a
+            >
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <h5 class="card-title">
+              <i class="fas fa-credit-card me-2 text-danger"></i>Manajemen
+              Pembayaran
+            </h5>
+            <p class="card-text">
+              Kelola transaksi pembayaran, pengembalian dana, dan riwayat
+              keuangan.
+            </p>
+            <a
+              href="{{ url_for('list_payments') }}"
+              class="btn btn-outline-danger"
+              >Lihat Pembayaran</a
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>Pintasan</h5>
+      </div>
+      <div class="list-group list-group-flush">
+        <a
+          href="{{ url_for('add_guest') }}"
+          class="list-group-item list-group-item-action"
+        >
+          <i class="fas fa-user-plus me-2 text-primary"></i>Tambah Tamu Baru
+        </a>
+        <a
+          href="{{ url_for('add_room_type') }}"
+          class="list-group-item list-group-item-action"
+        >
+          <i class="fas fa-plus-circle me-2 text-success"></i>Tambah Tipe Kamar
+        </a>
+        <a
+          href="{{ url_for('check_room_availability') }}"
+          class="list-group-item list-group-item-action"
+        >
+          <i class="fas fa-search me-2 text-info"></i>Cek Ketersediaan Kamar
+        </a>
+        <a
+          href="{{ url_for('add_booking') }}"
+          class="list-group-item list-group-item-action"
+        >
+          <i class="fas fa-calendar-plus me-2 text-warning"></i>Buat Booking
+          Baru
+        </a>
+      </div>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="card-header bg-success text-white">
+        <h5 class="mb-0">
+          <i class="fas fa-info-circle me-2"></i>Informasi Hotel
+        </h5>
+      </div>
+      <div class="card-body">
+        <h6><i class="fas fa-map-marker-alt me-2 text-danger"></i>Lokasi</h6>
+        <p>Jl. Telekomunikasi</p>
+
+        <h6><i class="fas fa-phone me-2 text-primary"></i>Kontak</h6>
+        <p>(021) 1234-5678<br />info@AzureHorizonHotel.com</p>
+
+        <h6><i class="fas fa-clock me-2 text-success"></i>Jam Operasional</h6>
+        <p>Check-in: 14:00<br />Check-out: 12:00</p>
+
+        <h6><i class="fas fa-star me-2 text-warning"></i>Fasilitas</h6>
+        <ul class="mb-0">
+          <li>Kolam Renang</li>
+          <li>Restoran</li>
+          <li>Spa</li>
+          <li>Gym</li>
+          <li>Wi-Fi Gratis</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

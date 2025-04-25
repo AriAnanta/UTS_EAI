@@ -1,0 +1,292 @@
+{% extends "base.html" %} {% block title %}Detail Analisis Fraud - Sistem
+Manajemen Hotel{% endblock %} {% block page_title %}Detail Analisis Fraud{%
+endblock %} {% block breadcrumb %}
+<li class="breadcrumb-item">
+  <a href="{{ url_for('list_payments') }}">Pembayaran</a>
+</li>
+<li class="breadcrumb-item">
+  <a href="{{ url_for('view_fraud_analysis') }}">Analisis Fraud</a>
+</li>
+<li class="breadcrumb-item active">Detail Fraud</li>
+{% endblock %} {% block content %}
+<div class="row">
+  <!-- Detail Transaksi -->
+  <div class="col-lg-6">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">
+          <i class="fas fa-receipt me-2"></i>Detail Transaksi
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <h6 class="text-muted mb-2">ID Pembayaran</h6>
+            <p class="fs-5 fw-bold">{{ analysis.transaction.payment_uid }}</p>
+          </div>
+          <div class="col-md-6">
+            <h6 class="text-muted mb-2">ID Booking</h6>
+            <p class="fs-5">
+              <a
+                href="{{ url_for('view_booking', booking_uid=analysis.transaction.booking_uid) }}"
+              >
+                {{ analysis.transaction.booking_uid }}
+              </a>
+            </p>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <h6 class="text-muted mb-2">Jumlah Pembayaran</h6>
+            <p class="fs-4 fw-bold text-success">
+              Rp {{ "{:,.0f}".format(analysis.transaction.requested_amount) }}
+            </p>
+          </div>
+          <div class="col-md-6">
+            <h6 class="text-muted mb-2">Status Transaksi</h6>
+            <p>
+              {% if analysis.transaction.status == 'success' %}
+              <span class="badge bg-success p-2 fs-6">Pembayaran Berhasil</span>
+              {% elif analysis.transaction.status == 'failed' %}
+              <span class="badge bg-danger p-2 fs-6">Pembayaran Gagal</span>
+              {% else %}
+              <span class="badge bg-secondary p-2 fs-6"
+                >{{ analysis.transaction.status }}</span
+              >
+              {% endif %}
+            </p>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <h6 class="text-muted mb-2">Waktu Permintaan</h6>
+            <p>{{ analysis.transaction.request_time }}</p>
+          </div>
+          <div class="col-md-6">
+            <h6 class="text-muted mb-2">Waktu Pemrosesan</h6>
+            <p>
+              {{ analysis.transaction.processed_at if
+              analysis.transaction.processed_at else 'Belum diproses' }}
+            </p>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-12 text-end">
+            <a
+              href="{{ url_for('view_payment', payment_uid=analysis.transaction.payment_uid) }}"
+              class="btn btn-outline-primary"
+            >
+              <i class="fas fa-eye me-1"></i>Lihat Detail Lengkap
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail Fraud Analysis -->
+  <div class="col-lg-6">
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-danger text-white">
+        <h5 class="mb-0">
+          <i class="fas fa-shield-alt me-2"></i>Analisis Fraud
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="mb-4">
+          <h6 class="text-muted mb-2">Skor Fraud</h6>
+          <div class="progress mb-2" style="height: 25px">
+            <div
+              class="progress-bar {% if analysis.fraud_analysis.fraud_score > 0.7 %}bg-danger{% else %}bg-warning{% endif %}"
+              role="progressbar"
+              style="width: {% if analysis.fraud_analysis.fraud_score %}{{ analysis.fraud_analysis.fraud_score * 100 }}{% else %}0{% endif %}%"
+              aria-valuenow="{% if analysis.fraud_analysis.fraud_score %}{{ analysis.fraud_analysis.fraud_score * 100 }}{% else %}0{% endif %}"
+              aria-valuemin="0"
+              aria-valuemax="100"
+            >
+              {{ "%.2f"|format((analysis.fraud_analysis.fraud_score if
+              analysis.fraud_analysis.fraud_score is not none else 0) * 100) }}%
+            </div>
+          </div>
+          <div class="d-flex justify-content-between">
+            <small class="text-success">Aman (0%)</small>
+            <small class="text-warning">Mencurigakan (70%)</small>
+            <small class="text-danger">Berisiko Tinggi (85%+)</small>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <h6 class="text-muted mb-2">Tingkat Risiko</h6>
+          <p class="fs-4">
+            {% if analysis.fraud_analysis.fraud_score is not none and
+            analysis.fraud_analysis.fraud_score > 0.85 %}
+            <span class="badge bg-danger p-2">TINGGI</span>
+            {% elif analysis.fraud_analysis.fraud_score is not none and
+            analysis.fraud_analysis.fraud_score > 0.7 %}
+            <span class="badge bg-warning p-2">SEDANG</span>
+            {% else %}
+            <span class="badge bg-success p-2">RENDAH</span>
+            {% endif %}
+          </p>
+        </div>
+
+        <div
+          class="alert {{ 'alert-danger' if analysis.fraud_analysis.is_fraud else 'alert-success' }}"
+        >
+          <i
+            class="{{ 'fas fa-exclamation-triangle' if analysis.fraud_analysis.is_fraud else 'fas fa-check-circle' }} me-2"
+          ></i>
+          {% if analysis.fraud_analysis.is_fraud %} Transaksi ini terdeteksi
+          sebagai <strong>FRAUD</strong> oleh sistem. Harap segera periksa dan
+          tindak lanjuti. {% else %} Transaksi ini dianggap
+          <strong>AMAN</strong> oleh sistem deteksi fraud. {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Faktor-faktor yang Memengaruhi -->
+    <div class="card shadow-sm">
+      <div class="card-header bg-secondary text-white">
+        <h5 class="mb-0">
+          <i class="fas fa-chart-bar me-2"></i>Faktor-faktor Pendeteksi Fraud
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-sm table-striped">
+            <thead>
+              <tr>
+                <th>Fitur</th>
+                <th>Nilai</th>
+                <th>Pengaruh</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for feature in analysis.fraud_analysis.feature_importance %}
+              <tr>
+                <td>{{ feature.name }}</td>
+                <td>
+                  {{ "%.2f"|format(feature.value if feature.value is not none
+                  else 0) }}
+                </td>
+                <td>
+                  <div class="progress" style="height: 15px">
+                    <div
+                      class="progress-bar {% if feature.contribution > 0.1 %}bg-danger{% else %}bg-warning{% endif %}"
+                      role="progressbar"
+                      style="width: {% if feature.contribution %}{{ feature.contribution * 100 }}{% else %}0{% endif %}%"
+                      aria-valuenow="{% if feature.contribution %}{{ feature.contribution * 100 }}{% else %}0{% endif %}"
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                    >
+                      {{ "%.2f"|format((feature.contribution if
+                      feature.contribution is not none else 0) * 100) }}%
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mt-3 alert alert-info">
+          <i class="fas fa-info-circle me-2"></i>Pengaruh fitur menggambarkan
+          seberapa besar kontribusi fitur tersebut dalam menentukan skor fraud
+          untuk transaksi ini.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tindakan -->
+<div class="card shadow-sm mt-4">
+  <div class="card-header bg-primary text-white">
+    <h5 class="mb-0"><i class="fas fa-tasks me-2"></i>Tindakan</h5>
+  </div>
+  <div class="card-body d-flex justify-content-between">
+    <a
+      href="{{ url_for('view_fraud_analysis') }}"
+      class="btn btn-outline-secondary"
+    >
+      <i class="fas fa-arrow-left me-1"></i>Kembali ke Analisis Fraud
+    </a>
+
+    <div>
+      <a
+        href="{{ url_for('view_payment', payment_uid=analysis.transaction.payment_uid) }}"
+        class="btn btn-primary"
+      >
+        <i class="fas fa-eye me-1"></i>Lihat Detail Transaksi
+      </a>
+
+      {% if analysis.fraud_analysis.is_fraud and analysis.transaction.status ==
+      'success' %}
+      <button
+        type="button"
+        class="btn btn-danger"
+        data-bs-toggle="modal"
+        data-bs-target="#confirmFlagModal"
+      >
+        <i class="fas fa-flag me-1"></i>Tandai sebagai Fraud
+      </button>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- Modal Konfirmasi Flag Fraud -->
+{% if analysis.fraud_analysis.is_fraud and analysis.transaction.status ==
+'success' %}
+<div
+  class="modal fade"
+  id="confirmFlagModal"
+  tabindex="-1"
+  aria-labelledby="confirmFlagModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="confirmFlagModalLabel">
+          Konfirmasi Tindakan
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-warning">
+          <i class="fas fa-exclamation-triangle me-2"></i>Anda akan menandai
+          transaksi ini sebagai fraud dan membatalkan transaksi. Tindakan ini
+          tidak dapat dibatalkan.
+        </div>
+        <p>
+          Apakah Anda yakin ingin menandai transaksi
+          <strong>{{ analysis.transaction.payment_uid }}</strong> sebagai fraud?
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Batal
+        </button>
+        <form
+          action="{{ url_for('flag_payment_fraud', payment_uid=analysis.transaction.payment_uid) }}"
+          method="post"
+        >
+          <button type="submit" class="btn btn-danger">
+            Ya, Tandai sebagai Fraud
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %} {% endblock %}

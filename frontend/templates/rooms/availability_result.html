@@ -1,0 +1,259 @@
+{% extends "base.html" %} {% block title %}Hasil Cek Ketersediaan - Sistem
+Manajemen Hotel{% endblock %} {% block page_title %}Hasil Cek Ketersediaan
+Kamar{% endblock %} {% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('list_rooms') }}">Kamar</a></li>
+<li class="breadcrumb-item">
+  <a href="{{ url_for('check_room_availability') }}">Cek Ketersediaan</a>
+</li>
+<li class="breadcrumb-item active">Hasil</li>
+{% endblock %} {% block content %}
+<div class="row">
+  <div class="col-md-8 mx-auto">
+    <div class="card shadow-sm">
+      <div
+        class="card-header {% if availability.available %}bg-success{% else %}bg-danger{% endif %} text-white"
+      >
+        <h5 class="mb-0">
+          <i
+            class="fas {% if availability.available %}fa-check-circle{% else %}fa-times-circle{% endif %} me-2"
+          ></i>
+          Hasil Cek Ketersediaan
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <h6 class="mb-3">Informasi Pencarian</h6>
+            <ul class="list-group mb-3">
+              <li
+                class="list-group-item d-flex justify-content-between align-items-center"
+              >
+                <span
+                  ><i class="fas fa-door-closed me-2 text-primary"></i>Tipe
+                  Kamar</span
+                >
+                <span class="fw-bold">{{ availability.type_code }}</span>
+              </li>
+              <li
+                class="list-group-item d-flex justify-content-between align-items-center"
+              >
+                <span
+                  ><i class="fas fa-calendar-alt me-2 text-success"></i
+                  >Check-in</span
+                >
+                <span class="fw-bold">{{ availability.check_in }}</span>
+              </li>
+              <li
+                class="list-group-item d-flex justify-content-between align-items-center"
+              >
+                <span
+                  ><i class="fas fa-calendar-alt me-2 text-danger"></i
+                  >Check-out</span
+                >
+                <span class="fw-bold">{{ availability.check_out }}</span>
+              </li>
+            </ul>
+          </div>
+          <div class="col-md-6">
+            <h6 class="mb-3">Status Ketersediaan</h6>
+            <div
+              class="alert {% if availability.available %}alert-success{% else %}alert-danger{% endif %}"
+            >
+              <div class="d-flex align-items-center">
+                <div class="flex-shrink-0 me-3 display-5">
+                  <i
+                    class="fas {% if availability.available %}fa-check-circle{% else %}fa-times-circle{% endif %}"
+                  ></i>
+                </div>
+                <div class="flex-grow-1">
+                  <h5>{{ availability.message }}</h5>
+                  {% if availability.available %}
+                  <p class="mb-0">
+                    Tersedia {{ availability.available_count }} dari {{
+                    availability.total_rooms }} kamar.
+                  </p>
+                  {% else %}
+                  <p class="mb-0">
+                    Semua kamar tipe ini telah dibooking untuk periode tersebut.
+                  </p>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+
+            {% if availability.warning %}
+            <div class="alert alert-warning mt-3">
+              <i class="fas fa-exclamation-triangle me-2"></i>
+              {{ availability.warning }}
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div
+          class="d-flex flex-column flex-md-row justify-content-between gap-2 mt-4"
+        >
+          <a
+            href="{{ url_for('check_room_availability') }}"
+            class="btn btn-outline-secondary"
+          >
+            <i class="fas fa-search me-1"></i>Cek Ketersediaan Lain
+          </a>
+
+          {% if availability.available %}
+          <a
+            href="{{ url_for('add_booking') }}?type_code={{ availability.type_code }}&check_in={{ availability.check_in }}&check_out={{ availability.check_out }}"
+            class="btn btn-success"
+          >
+            <i class="fas fa-calendar-plus me-1"></i>Buat Booking Untuk Kamar
+            Ini
+          </a>
+          {% else %}
+          <a href="{{ url_for('list_rooms') }}" class="btn btn-primary">
+            <i class="fas fa-door-open me-1"></i>Lihat Tipe Kamar Lain
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Rekomendasi alternatif jika tidak tersedia -->
+    {% if not availability.available %}
+    <div class="card shadow-sm mt-4">
+      <div class="card-header bg-info text-white">
+        <h5 class="mb-0">
+          <i class="fas fa-lightbulb me-2"></i>Rekomendasi Tipe Kamar Lain
+        </h5>
+      </div>
+      <div class="card-body">
+        <p>
+          Tipe kamar yang Anda pilih tidak tersedia untuk tanggal tersebut.
+          Berikut rekomendasi tipe kamar lain:
+        </p>
+
+        <div class="row row-cols-1 row-cols-md-2 g-4 mt-2">
+          <!-- Dummy recommendations, in real app these would be fetched from available room types -->
+          <div class="col">
+            <div class="card h-100">
+              <div class="card-body">
+                <h5 class="card-title">Deluxe Room</h5>
+                <p class="card-text small">
+                  Kamar deluxe dengan pemandangan kota, TV layar datar, dan
+                  kamar mandi mewah.
+                </p>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="badge bg-success">Rp 800.000/malam</span>
+                  <a
+                    href="{{ url_for('check_room_availability') }}?type_code=deluxe&check_in={{ availability.check_in }}&check_out={{ availability.check_out }}"
+                    class="btn btn-sm btn-outline-primary"
+                    >Cek Ketersediaan</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col">
+            <div class="card h-100">
+              <div class="card-body">
+                <h5 class="card-title">Suite Room</h5>
+                <p class="card-text small">
+                  Suite mewah dengan ruang tamu terpisah, minibar, dan akses ke
+                  executive lounge.
+                </p>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="badge bg-success">Rp 1.500.000/malam</span>
+                  <a
+                    href="{{ url_for('check_room_availability') }}?type_code=suite&check_in={{ availability.check_in }}&check_out={{ availability.check_out }}"
+                    class="btn btn-sm btn-outline-primary"
+                    >Cek Ketersediaan</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Tindakan lanjutan -->
+  <div class="col-md-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">
+          <i class="fas fa-info-circle me-2"></i>Informasi Tipe Kamar
+        </h5>
+      </div>
+      <div class="card-body">
+        <!-- In a real application, this would show actual room type details from the API -->
+        <div class="text-center mb-3">
+          <div
+            class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center"
+            style="width: 80px; height: 80px"
+          >
+            <i class="fas fa-bed fa-2x text-primary"></i>
+          </div>
+        </div>
+
+        <h5 class="text-center">{{ availability.type_code|title }}</h5>
+
+        <hr />
+
+        <dl class="row">
+          <dt class="col-sm-6">Kapasitas:</dt>
+          <dd class="col-sm-6">2 orang</dd>
+
+          <dt class="col-sm-6">Ukuran Kamar:</dt>
+          <dd class="col-sm-6">24m²</dd>
+
+          <dt class="col-sm-6">Tipe Kasur:</dt>
+          <dd class="col-sm-6">1 Queen Bed</dd>
+
+          <dt class="col-sm-6">Fasilitas:</dt>
+          <dd class="col-sm-6">
+            <ul class="list-unstyled mb-0">
+              <li><i class="fas fa-check text-success me-1"></i>WiFi Gratis</li>
+              <li><i class="fas fa-check text-success me-1"></i>TV</li>
+              <li><i class="fas fa-check text-success me-1"></i>AC</li>
+              <li><i class="fas fa-check text-success me-1"></i>Kamar Mandi</li>
+            </ul>
+          </dd>
+        </dl>
+      </div>
+      <div class="card-footer text-center">
+        <a
+          href="{{ url_for('list_rooms') }}"
+          class="btn btn-sm btn-outline-primary"
+          >Lihat Detail Tipe Kamar</a
+        >
+      </div>
+    </div>
+
+    <!-- Kalender ketersediaan -->
+    <div class="card shadow-sm mt-4">
+      <div class="card-header bg-success text-white">
+        <h5 class="mb-0">
+          <i class="fas fa-calendar me-2"></i>Kalender Ketersediaan
+        </h5>
+      </div>
+      <div class="card-body">
+        <p class="small text-muted">
+          Untuk melihat ketersediaan di tanggal lain, silakan coba tanggal yang
+          berbeda:
+        </p>
+
+        <div class="d-grid gap-2 mt-3">
+          <a
+            href="{{ url_for('check_room_availability') }}"
+            class="btn btn-outline-success"
+          >
+            <i class="fas fa-calendar-alt me-1"></i>Cek Tanggal Lain
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

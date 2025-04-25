@@ -1,0 +1,228 @@
+{% extends "base.html" %} {% block title %}Cek Ketersediaan Kamar - Sistem
+Manajemen Hotel{% endblock %} {% block page_title %}Cek Ketersediaan Kamar{%
+endblock %} {% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('list_rooms') }}">Kamar</a></li>
+<li class="breadcrumb-item active">Cek Ketersediaan</li>
+{% endblock %} {% block content %}
+<div class="row">
+  <div class="col-md-8 mx-auto">
+    <div class="card shadow-sm">
+      <div class="card-header bg-info text-white">
+        <h5 class="mb-0">
+          <i class="fas fa-search me-2"></i>Form Cek Ketersediaan
+        </h5>
+      </div>
+      <div class="card-body">
+        <form
+          action="{{ url_for('check_room_availability') }}"
+          method="post"
+          class="needs-validation"
+          novalidate
+        >
+          <div class="row mb-3">
+            <div class="col-md-12">
+              <label for="type_code" class="form-label"
+                >Tipe Kamar <span class="text-danger">*</span></label
+              >
+              <select
+                class="form-select"
+                id="type_code"
+                name="type_code"
+                required
+              >
+                <option value="" selected disabled>Pilih tipe kamar...</option>
+                {% for room in rooms %}
+                <option value="{{ room.type_code }}">
+                  {{ room.name }} - Rp {{ "{:,.0f}".format(room.price_per_night)
+                  }}/malam
+                </option>
+                {% endfor %}
+              </select>
+              <div class="invalid-feedback">Silakan pilih tipe kamar.</div>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="check_in" class="form-label"
+                >Tanggal Check-in <span class="text-danger">*</span></label
+              >
+              <input
+                type="date"
+                class="form-control"
+                id="check_in"
+                name="check_in"
+                required
+              />
+              <div class="invalid-feedback">Tanggal check-in wajib diisi.</div>
+            </div>
+            <div class="col-md-6">
+              <label for="check_out" class="form-label"
+                >Tanggal Check-out <span class="text-danger">*</span></label
+              >
+              <input
+                type="date"
+                class="form-control"
+                id="check_out"
+                name="check_out"
+                required
+              />
+              <div class="invalid-feedback">Tanggal check-out wajib diisi.</div>
+            </div>
+          </div>
+
+          <div class="d-grid gap-2 mt-4">
+            <button type="submit" class="btn btn-info">
+              <i class="fas fa-search me-1"></i>Cek Ketersediaan
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Tips Cek Ketersediaan -->
+    <div class="card shadow-sm mt-4">
+      <div class="card-header bg-light">
+        <h5 class="mb-0">
+          <i class="fas fa-lightbulb me-2 text-warning"></i>Tips Cek
+          Ketersediaan
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="text-center text-info mb-3">
+              <i class="fas fa-calendar-alt fa-3x"></i>
+            </div>
+            <h6 class="text-center">Periksa Ketersediaan</h6>
+            <p class="small text-muted">
+              Selalu periksa ketersediaan kamar sebelum membuat booking baru
+              untuk memastikan tersedia.
+            </p>
+          </div>
+          <div class="col-md-4">
+            <div class="text-center text-success mb-3">
+              <i class="fas fa-calendar-plus fa-3x"></i>
+            </div>
+            <h6 class="text-center">Booking Langsung</h6>
+            <p class="small text-muted">
+              Jika kamar tersedia, Anda bisa langsung klik "Buat Booking" untuk
+              membuat booking baru.
+            </p>
+          </div>
+          <div class="col-md-4">
+            <div class="text-center text-warning mb-3">
+              <i class="fas fa-business-time fa-3x"></i>
+            </div>
+            <h6 class="text-center">Jam Peak</h6>
+            <p class="small text-muted">
+              Check-in jam 14:00 dan check-out jam 12:00. Ketersediaan bisa
+              berubah sesuai booking.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tipe Kamar Tersedia -->
+  <div class="col-md-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-success text-white">
+        <h5 class="mb-0">
+          <i class="fas fa-door-open me-2"></i>Tipe Kamar Tersedia
+        </h5>
+      </div>
+      <div class="list-group list-group-flush">
+        {% for room in rooms %}
+        <div class="list-group-item">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="mb-1">{{ room.name }}</h6>
+              <small class="text-muted">{{ room.type_code }}</small>
+            </div>
+            <span class="badge bg-success"
+              >Rp {{ "{:,.0f}".format(room.price_per_night) }}</span
+            >
+          </div>
+          {% if room.description %}
+          <small class="text-muted text-truncate-2 d-block"
+            >{{ room.description }}</small
+          >
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+      <div class="card-footer text-center">
+        <a
+          href="{{ url_for('list_rooms') }}"
+          class="btn btn-sm btn-outline-secondary"
+        >
+          <i class="fas fa-th-list me-1"></i>Lihat Semua Tipe Kamar
+        </a>
+      </div>
+    </div>
+
+    <!-- Pintasan ke form booking -->
+    <div class="card shadow-sm mt-4">
+      <div class="card-header bg-warning text-dark">
+        <h5 class="mb-0">
+          <i class="fas fa-calendar-plus me-2"></i>Ingin Booking?
+        </h5>
+      </div>
+      <div class="card-body">
+        <p>
+          Langsung buat booking baru tanpa perlu mengecek ketersediaan terlebih
+          dahulu.
+        </p>
+        <div class="d-grid gap-2">
+          <a href="{{ url_for('add_booking') }}" class="btn btn-warning">
+            <i class="fas fa-plus me-1"></i>Buat Booking Baru
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Set tanggal check-in ke hari ini secara default
+    const today = new Date();
+    const todayStr = today.toISOString().split("T")[0];
+
+    const checkInInput = document.getElementById("check_in");
+    const checkOutInput = document.getElementById("check_out");
+
+    if (checkInInput) {
+      checkInInput.setAttribute("min", todayStr);
+      checkInInput.value = todayStr;
+
+      // Saat check-in berubah, update min tanggal check-out
+      checkInInput.addEventListener("change", function () {
+        if (checkOutInput) {
+          checkOutInput.setAttribute("min", this.value);
+
+          // Jika check-out sekarang lebih awal dari check-in, sesuaikan
+          if (checkOutInput.value < this.value) {
+            // Set check-out ke hari setelah check-in
+            const nextDay = new Date(this.value);
+            nextDay.setDate(nextDay.getDate() + 1);
+            checkOutInput.value = nextDay.toISOString().split("T")[0];
+          }
+        }
+      });
+    }
+
+    if (checkOutInput) {
+      // Set default check-out ke besok
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const tomorrowStr = tomorrow.toISOString().split("T")[0];
+
+      checkOutInput.setAttribute("min", todayStr);
+      checkOutInput.value = tomorrowStr;
+    }
+  });
+</script>
+{% endblock %}

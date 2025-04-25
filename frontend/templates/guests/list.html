@@ -1,0 +1,152 @@
+{% extends "base.html" %} {% block title %}Daftar Tamu - Sistem Manajemen
+Hotel{% endblock %} {% block page_title %}Daftar Tamu{% endblock %} {% block
+breadcrumb %}
+<li class="breadcrumb-item active">Tamu</li>
+{% endblock %} {% block content %}
+<div class="card shadow-sm">
+  <div
+    class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
+  >
+    <h5 class="mb-0"><i class="fas fa-users me-2"></i>Daftar Tamu</h5>
+    <a href="{{ url_for('add_guest') }}" class="btn btn-light btn-sm">
+      <i class="fas fa-plus me-1"></i>Tambah Tamu
+    </a>
+  </div>
+
+  <div class="card-body">
+    <!-- Filter & Search -->
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <div class="input-group">
+          <span class="input-group-text"><i class="fas fa-search"></i></span>
+          <input
+            type="text"
+            id="table-filter"
+            data-table="#guests-table"
+            class="form-control"
+            placeholder="Cari tamu berdasarkan nama, email, atau ID..."
+          />
+        </div>
+      </div>
+      <div class="col-md-6 text-md-end mt-3 mt-md-0">
+        <span class="text-muted"
+          >Total: <strong>{{ guests|length }}</strong> tamu</span
+        >
+      </div>
+    </div>
+
+    <!-- Tabel Tamu -->
+    <div class="table-responsive">
+      <table class="table table-hover" id="guests-table">
+        <thead>
+          <tr>
+            <th>ID Tamu</th>
+            <th>Nama</th>
+            <th>Email</th>
+            <th>Telepon</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if guests %} {% for guest in guests %}
+          <tr>
+            <td>{{ guest.guest_uid }}</td>
+            <td>{{ guest.name }}</td>
+            <td>{{ guest.email }}</td>
+            <td>{{ guest.phone or '-' }}</td>
+            <td>
+              <div class="btn-group">
+                <a
+                  href="{{ url_for('view_guest', guest_uid=guest.guest_uid) }}"
+                  class="btn btn-sm btn-outline-primary"
+                  data-bs-toggle="tooltip"
+                  title="Lihat Detail"
+                >
+                  <i class="fas fa-eye"></i>
+                </a>
+                <a
+                  href="{{ url_for('edit_guest', guest_uid=guest.guest_uid) }}"
+                  class="btn btn-sm btn-outline-success"
+                  data-bs-toggle="tooltip"
+                  title="Edit"
+                >
+                  <i class="fas fa-edit"></i>
+                </a>
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-danger btn-delete"
+                  data-bs-toggle="modal"
+                  data-bs-target="#deleteModal{{ guest.guest_uid }}"
+                  data-bs-toggle="tooltip"
+                  title="Hapus"
+                >
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+
+              <!-- Modal Konfirmasi Hapus -->
+              <div
+                class="modal fade"
+                id="deleteModal{{ guest.guest_uid }}"
+                tabindex="-1"
+                aria-hidden="true"
+              >
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                      <h5 class="modal-title">Konfirmasi Hapus Tamu</h5>
+                      <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                      ></button>
+                    </div>
+                    <div class="modal-body">
+                      <p>
+                        Apakah Anda yakin ingin menghapus tamu
+                        <strong>{{ guest.name }}</strong> ({{ guest.guest_uid
+                        }})?
+                      </p>
+                      <p class="text-danger">
+                        <small
+                          >Tindakan ini tidak bisa dibatalkan dan mungkin akan
+                          mempengaruhi data lain yang terkait.</small
+                        >
+                      </p>
+                    </div>
+                    <div class="modal-footer">
+                      <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal"
+                      >
+                        Batal
+                      </button>
+                      <form
+                        action="{{ url_for('delete_guest', guest_uid=guest.guest_uid) }}"
+                        method="post"
+                      >
+                        <button type="submit" class="btn btn-danger">
+                          Hapus
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+          {% endfor %} {% else %}
+          <tr>
+            <td colspan="5" class="text-center py-3">
+              Tidak ada data tamu yang tersedia
+            </td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

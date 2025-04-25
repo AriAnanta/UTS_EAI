@@ -1,0 +1,311 @@
+{% extends "base.html" %} {% block title %}Daftar Booking - Sistem Manajemen
+Hotel{% endblock %} {% block page_title %}Daftar Booking{% endblock %} {% block
+breadcrumb %}
+<li class="breadcrumb-item active">Booking</li>
+{% endblock %} {% block content %}
+<div class="card shadow-sm">
+  <div
+    class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
+  >
+    <h5 class="mb-0">
+      <i class="fas fa-calendar-check me-2"></i>Daftar Booking
+    </h5>
+    <a href="{{ url_for('add_booking') }}" class="btn btn-light btn-sm">
+      <i class="fas fa-plus me-1"></i>Tambah Booking
+    </a>
+  </div>
+
+  <div class="card-body">
+    <!-- Filter & Search -->
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <div class="input-group">
+          <span class="input-group-text"><i class="fas fa-search"></i></span>
+          <input
+            type="text"
+            id="table-filter"
+            data-table="#bookings-table"
+            class="form-control"
+            placeholder="Cari booking..."
+          />
+        </div>
+      </div>
+      <div class="col-md-6 text-md-end">
+        <div class="btn-group" role="group">
+          <button
+            type="button"
+            class="btn btn-outline-primary active"
+            data-filter="all"
+          >
+            Semua
+          </button>
+          <button
+            type="button"
+            class="btn btn-outline-success"
+            data-filter="confirmed"
+          >
+            Dikonfirmasi
+          </button>
+          <button
+            type="button"
+            class="btn btn-outline-warning"
+            data-filter="pending_payment"
+          >
+            Menunggu Pembayaran
+          </button>
+          <button
+            type="button"
+            class="btn btn-outline-danger"
+            data-filter="cancelled"
+          >
+            Dibatalkan
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabel Booking -->
+    <div class="table-responsive">
+      <table class="table table-hover" id="bookings-table">
+        <thead>
+          <tr>
+            <th>ID Booking</th>
+            <th>Tamu</th>
+            <th>Tipe Kamar</th>
+            <th>Check-in</th>
+            <th>Check-out</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if bookings %} {% for booking in bookings %}
+          <tr data-status="{{ booking.status }}">
+            <td>{{ booking.booking_uid }}</td>
+            <td>{{ booking.guest_uid }}</td>
+            <td>{{ booking.room_type_code }}</td>
+            <td>{{ booking.check_in_date }}</td>
+            <td>{{ booking.check_out_date }}</td>
+            <td class="currency">{{ booking.total_price }}</td>
+            <td>
+              {% if booking.status == 'confirmed' %}
+              <span class="badge bg-success">Dikonfirmasi</span>
+              {% elif booking.status == 'pending_payment' %}
+              <span class="badge bg-warning">Menunggu Pembayaran</span>
+              {% elif booking.status == 'cancelled' %}
+              <span class="badge bg-danger">Dibatalkan</span>
+              {% else %}
+              <span class="badge bg-secondary">{{ booking.status }}</span>
+              {% endif %}
+            </td>
+            <td>
+              <div class="btn-group">
+                <a
+                  href="{{ url_for('view_booking', booking_uid=booking.booking_uid) }}"
+                  class="btn btn-sm btn-outline-primary"
+                  data-bs-toggle="tooltip"
+                  title="Lihat Detail"
+                >
+                  <i class="fas fa-eye"></i>
+                </a>
+                {% if booking.status == 'pending_payment' %}
+                <a
+                  href="{{ url_for('view_booking', booking_uid=booking.booking_uid) }}"
+                  class="btn btn-sm btn-outline-success"
+                  data-bs-toggle="tooltip"
+                  title="Proses Pembayaran"
+                >
+                  <i class="fas fa-credit-card"></i>
+                </a>
+                {% endif %} {% if booking.status != 'cancelled' %}
+                <button
+                  type="button"
+                  class="btn btn-sm btn-outline-danger btn-cancel-booking"
+                  data-bs-toggle="modal"
+                  data-bs-target="#cancelModal{{ booking.booking_uid }}"
+                  title="Batalkan"
+                >
+                  <i class="fas fa-times"></i>
+                </button>
+                {% endif %}
+              </div>
+
+              <!-- Modal Konfirmasi Pembatalan -->
+              {% if booking.status != 'cancelled' %}
+              <div
+                class="modal fade"
+                id="cancelModal{{ booking.booking_uid }}"
+                tabindex="-1"
+                aria-hidden="true"
+              >
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                      <h5 class="modal-title">Konfirmasi Pembatalan Booking</h5>
+                      <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                      ></button>
+                    </div>
+                    <div class="modal-body">
+                      <p>
+                        Apakah Anda yakin ingin membatalkan booking
+                        <strong>{{ booking.booking_uid }}</strong>?
+                      </p>
+
+                      <form
+                        action="{{ url_for('cancel_booking', booking_uid=booking.booking_uid) }}"
+                        method="post"
+                        id="cancelForm{{ booking.booking_uid }}"
+                      >
+                        <div class="mb-3">
+                          <label
+                            for="reason{{ booking.booking_uid }}"
+                            class="form-label"
+                            >Alasan Pembatalan:</label
+                          >
+                          <textarea
+                            class="form-control"
+                            id="reason{{ booking.booking_uid }}"
+                            name="reason"
+                            rows="3"
+                            required
+                            placeholder="Masukkan alasan pembatalan..."
+                          ></textarea>
+                        </div>
+
+                        {% if booking.status == 'confirmed' %}
+                        <div class="alert alert-warning">
+                          <i class="fas fa-exclamation-triangle me-2"></i>
+                          <strong>Perhatian!</strong> Booking ini sudah
+                          dikonfirmasi. Pembatalan dapat dikenakan biaya sesuai
+                          kebijakan hotel.
+                        </div>
+                        {% endif %}
+                      </form>
+                    </div>
+                    <div class="modal-footer">
+                      <button
+                        type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal"
+                      >
+                        Batal
+                      </button>
+                      <button
+                        type="submit"
+                        form="cancelForm{{ booking.booking_uid }}"
+                        class="btn btn-danger"
+                      >
+                        Batalkan Booking
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %} {% else %}
+          <tr>
+            <td colspan="8" class="text-center py-3">
+              Tidak ada data booking yang tersedia
+            </td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Cards Ringkasan Booking -->
+<div class="row mt-4">
+  <div class="col-md-3">
+    <div class="card shadow-sm text-center bg-light">
+      <div class="card-body">
+        <div class="display-4 mb-2 text-primary">
+          <i class="fas fa-calendar-check"></i>
+        </div>
+        <h5>Total Booking</h5>
+        <h3>{{ bookings|length }}</h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm text-center bg-light">
+      <div class="card-body">
+        <div class="display-4 mb-2 text-success">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <h5>Dikonfirmasi</h5>
+        <h3>
+          {{ bookings|selectattr('status', 'equalto', 'confirmed')|list|length
+          }}
+        </h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm text-center bg-light">
+      <div class="card-body">
+        <div class="display-4 mb-2 text-warning">
+          <i class="fas fa-clock"></i>
+        </div>
+        <h5>Menunggu Pembayaran</h5>
+        <h3>
+          {{ bookings|selectattr('status', 'equalto',
+          'pending_payment')|list|length }}
+        </h3>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm text-center bg-light">
+      <div class="card-body">
+        <div class="display-4 mb-2 text-danger">
+          <i class="fas fa-times-circle"></i>
+        </div>
+        <h5>Dibatalkan</h5>
+        <h3>
+          {{ bookings|selectattr('status', 'equalto', 'cancelled')|list|length
+          }}
+        </h3>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Filter tabel berdasarkan status
+    const filterButtons = document.querySelectorAll("[data-filter]");
+
+    filterButtons.forEach(function (button) {
+      button.addEventListener("click", function () {
+        // Hapus kelas active dari semua tombol
+        filterButtons.forEach((btn) => btn.classList.remove("active"));
+        // Tambahkan kelas active ke tombol yang diklik
+        this.classList.add("active");
+
+        const filterValue = this.getAttribute("data-filter");
+        const rows = document.querySelectorAll("#bookings-table tbody tr");
+
+        rows.forEach(function (row) {
+          if (
+            filterValue === "all" ||
+            row.getAttribute("data-status") === filterValue
+          ) {
+            row.style.display = "";
+          } else {
+            row.style.display = "none";
+          }
+        });
+      });
+    });
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,470 @@
+{% extends "base.html" %} {% block title %}Detail Booking - Sistem Manajemen
+Hotel{% endblock %} {% block page_title %}Detail Booking{% endblock %} {% block
+breadcrumb %}
+<li class="breadcrumb-item">
+  <a href="{{ url_for('list_bookings') }}">Booking</a>
+</li>
+<li class="breadcrumb-item active">Detail Booking</li>
+{% endblock %} {% block content %}
+<div class="row">
+  <!-- Informasi Booking -->
+  <div class="col-md-8">
+    <div class="card shadow-sm mb-4">
+      <div
+        class="card-header {% if booking.status == 'confirmed' %}bg-success{% elif booking.status == 'cancelled' %}bg-danger{% else %}bg-primary{% endif %} text-white d-flex justify-content-between align-items-center"
+      >
+        <h5 class="mb-0">
+          <i
+            class="fas {% if booking.status == 'confirmed' %}fa-check-circle{% elif booking.status == 'cancelled' %}fa-times-circle{% else %}fa-calendar-check{% endif %} me-2"
+          ></i>
+          Informasi Booking
+        </h5>
+        <span class="badge bg-light text-dark fs-6"
+          >{{ booking.booking_uid }}</span
+        >
+      </div>
+      <div class="card-body">
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <h6><i class="fas fa-user me-2 text-primary"></i>Tamu</h6>
+            <p class="mb-1"><strong>{{ guest.name }}</strong></p>
+            <p class="mb-0 text-muted small">{{ guest.email }}</p>
+            {% if guest.phone %}
+            <p class="mb-0 text-muted small">{{ guest.phone }}</p>
+            {% endif %}
+            <a
+              href="{{ url_for('view_guest', guest_uid=guest.guest_uid) }}"
+              class="btn btn-sm btn-outline-primary mt-2"
+              >Lihat Detail Tamu</a
+            >
+          </div>
+
+          <div class="col-md-6">
+            <h6>
+              <i class="fas fa-door-closed me-2 text-success"></i>Tipe Kamar
+            </h6>
+            <p class="mb-1"><strong>{{ room.name }}</strong></p>
+            <p class="mb-0 text-muted small">{{ room.type_code }}</p>
+            <p class="mt-1 mb-0">
+              <span class="badge bg-success"
+                >Rp {{ "{:,.0f}".format(room.price_per_night|default(0, true)) }}/malam</span
+              >
+            </p>
+            <a
+              href="{{ url_for('view_room', type_code=room.type_code) }}"
+              class="btn btn-sm btn-outline-success mt-2"
+              >Lihat Detail Kamar</a
+            >
+          </div>
+        </div>
+
+        <hr />
+
+        <div class="row">
+          <div class="col-md-4">
+            <h6 class="text-muted mb-3">Tanggal Check-in</h6>
+            <div class="d-flex align-items-center">
+              <span class="bg-light rounded-circle p-2 me-2">
+                <i class="fas fa-calendar-alt text-success"></i>
+              </span>
+              <span class="fs-5">{{ booking.check_in_date }}</span>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <h6 class="text-muted mb-3">Tanggal Check-out</h6>
+            <div class="d-flex align-items-center">
+              <span class="bg-light rounded-circle p-2 me-2">
+                <i class="fas fa-calendar-alt text-danger"></i>
+              </span>
+              <span class="fs-5">{{ booking.check_out_date }}</span>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <h6 class="text-muted mb-3">Durasi</h6>
+            <div class="d-flex align-items-center">
+              <span class="bg-light rounded-circle p-2 me-2">
+                <i class="fas fa-clock text-primary"></i>
+              </span>
+              <span class="fs-5">{{ booking.duration }} malam</span>
+            </div>
+          </div>
+        </div>
+
+        <hr />
+
+        <div class="row mt-3">
+          <div class="col-md-4">
+            <h6 class="text-muted">Status Booking</h6>
+            {% if booking.status == 'confirmed' %}
+            <span class="badge bg-success p-2 fs-6">Dikonfirmasi</span>
+            {% elif booking.status == 'pending_payment' %}
+            <span class="badge bg-warning p-2 fs-6">Menunggu Pembayaran</span>
+            {% elif booking.status == 'cancelled' %}
+            <span class="badge bg-danger p-2 fs-6">Dibatalkan</span>
+            {% else %}
+            <span class="badge bg-secondary p-2 fs-6"
+              >{{ booking.status }}</span
+            >
+            {% endif %}
+          </div>
+
+          <div class="col-md-4">
+            <h6 class="text-muted">Total Harga</h6>
+            <p class="fs-5 fw-bold text-success">
+              Rp {{ "{:,.0f}".format(booking.total_price|default(0, true)) }}
+            </p>
+          </div>
+
+          <div class="col-md-4">
+            <h6 class="text-muted">Tanggal Booking</h6>
+            <p class="mb-0">{{ booking.booking_time|default('-', true) }}</p>
+          </div>
+        </div>
+
+        {% if booking.status == 'cancelled' and booking.cancelled_reason %}
+        <div class="alert alert-danger mt-3">
+          <h6 class="mb-1">
+            <i class="fas fa-exclamation-triangle me-2"></i>Alasan Pembatalan
+          </h6>
+          <p class="mb-0">{{ booking.cancelled_reason }}</p>
+        </div>
+        {% endif %}
+
+        <div class="d-flex justify-content-between mt-4">
+          <a
+            href="{{ url_for('list_bookings') }}"
+            class="btn btn-outline-secondary"
+          >
+            <i class="fas fa-arrow-left me-1"></i>Kembali ke Daftar
+          </a>
+
+          {% if booking.status != 'cancelled' %}
+          <div>
+            {% if booking.status == 'pending_payment' and not payment %}
+            <a
+              href="#paymentModal"
+              data-bs-toggle="modal"
+              class="btn btn-success me-2"
+            >
+              <i class="fas fa-credit-card me-1"></i>Proses Pembayaran
+            </a>
+            {% endif %}
+
+            <button
+              type="button"
+              class="btn btn-danger btn-cancel-booking"
+              data-bs-toggle="modal"
+              data-bs-target="#cancelModal"
+            >
+              <i class="fas fa-times me-1"></i>Batalkan Booking
+            </button>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="col-md-4">
+    <!-- Informasi Pembayaran -->
+    <div class="card shadow-sm mb-4">
+      <div class="card-header bg-info text-white">
+        <h5 class="mb-0">
+          <i class="fas fa-credit-card me-2"></i>Informasi Pembayaran
+        </h5>
+      </div>
+      <div class="card-body">
+        {% if payment %}
+        <div class="mb-3 text-center">
+          <div
+            class="display-1 {% if payment.status == 'success' %}text-success{% elif payment.status == 'failed' %}text-danger{% else %}text-warning{% endif %} mb-3"
+          >
+            <i
+              class="fas {% if payment.status == 'success' %}fa-check-circle{% elif payment.status == 'failed' %}fa-times-circle{% else %}fa-clock{% endif %}"
+            ></i>
+          </div>
+          <h5>
+            {% if payment.status == 'success' %} Pembayaran Berhasil {% elif
+            payment.status == 'failed' %} Pembayaran Gagal {% else %} Menunggu
+            Pembayaran {% endif %}
+          </h5>
+        </div>
+
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item d-flex justify-content-between px-0">
+            <span class="text-muted">ID Pembayaran</span>
+            <span>{{ payment.payment_uid }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between px-0">
+            <span class="text-muted">Metode</span>
+            <span
+              >{{ payment.payment_method|default('Transfer Bank', true) }}</span
+            >
+          </li>
+          <li class="list-group-item d-flex justify-content-between px-0">
+            <span class="text-muted">Jumlah</span>
+            <span class="fw-bold"
+              >Rp {{ "{:,.0f}".format(payment.amount|default(0, true)) }}</span
+            >
+          </li>
+          <li class="list-group-item d-flex justify-content-between px-0">
+            <span class="text-muted">Waktu</span>
+            <span
+              >{{ payment.processed_time|default(payment.request_time, true)
+              }}</span
+            >
+          </li>
+        </ul>
+
+        <div class="text-center mt-3">
+          <a
+            href="{{ url_for('view_payment', payment_uid=payment.payment_uid) }}"
+            class="btn btn-outline-info"
+          >
+            <i class="fas fa-eye me-1"></i>Lihat Detail Pembayaran
+          </a>
+        </div>
+        {% elif booking.status == 'pending_payment' %}
+        <div class="text-center py-4">
+          <div class="display-1 text-warning mb-3">
+            <i class="fas fa-exclamation-circle"></i>
+          </div>
+          <h5>Belum Ada Pembayaran</h5>
+          <p class="text-muted">Booking ini menunggu pembayaran.</p>
+          <button
+            type="button"
+            class="btn btn-success mt-2"
+            data-bs-toggle="modal"
+            data-bs-target="#paymentModal"
+          >
+            <i class="fas fa-credit-card me-1"></i>Proses Pembayaran
+          </button>
+        </div>
+        {% else %}
+        <div class="text-center py-4">
+          <div class="display-1 text-muted mb-3">
+            <i class="fas fa-money-bill-alt"></i>
+          </div>
+          <h5>Tidak Ada Pembayaran</h5>
+          <p class="text-muted">
+            Belum ada informasi pembayaran untuk booking ini.
+          </p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Timeline Booking -->
+    <div class="card shadow-sm">
+      <div class="card-header bg-secondary text-white">
+        <h5 class="mb-0">
+          <i class="fas fa-history me-2"></i>Timeline Booking
+        </h5>
+      </div>
+      <div class="card-body p-0">
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item border-start border-3 border-success">
+            <div class="d-flex">
+              <div class="flex-shrink-0">
+                <i class="fas fa-check-circle text-success"></i>
+              </div>
+              <div class="flex-grow-1 ms-3">
+                <h6 class="mb-1">Booking Dibuat</h6>
+                <p class="text-muted mb-0 small">
+                  {{ booking.booking_time|default('-', true) }}
+                </p>
+              </div>
+            </div>
+          </li>
+
+          <li
+            class="list-group-item border-start border-3 {% if payment and payment.status == 'success' %}border-success{% elif booking.status == 'pending_payment' %}border-warning{% else %}border-secondary{% endif %}"
+          >
+            <div class="d-flex">
+              <div class="flex-shrink-0">
+                <i
+                  class="fas fa-credit-card {% if payment and payment.status == 'success' %}text-success{% elif booking.status == 'pending_payment' %}text-warning{% else %}text-secondary{% endif %}"
+                ></i>
+              </div>
+              <div class="flex-grow-1 ms-3">
+                <h6 class="mb-1">Pembayaran</h6>
+                {% if payment and payment.status == 'success' %}
+                <p class="text-muted mb-0 small">
+                  Dibayar pada {{ payment.processed_time }}
+                </p>
+                {% elif booking.status == 'pending_payment' %}
+                <p class="text-muted mb-0 small">Menunggu pembayaran</p>
+                {% else %}
+                <p class="text-muted mb-0 small">Tidak diperlukan</p>
+                {% endif %}
+              </div>
+            </div>
+          </li>
+
+          <li
+            class="list-group-item border-start border-3 {% if booking.status == 'cancelled' %}border-danger{% elif booking.status == 'confirmed' %}border-success{% else %}border-secondary{% endif %}"
+          >
+            <div class="d-flex">
+              <div class="flex-shrink-0">
+                <i
+                  class="fas {% if booking.status == 'cancelled' %}fa-times-circle text-danger{% elif booking.status == 'confirmed' %}fa-check-circle text-success{% else %}fa-clock text-secondary{% endif %}"
+                ></i>
+              </div>
+              <div class="flex-grow-1 ms-3">
+                <h6 class="mb-1">Status Booking</h6>
+                {% if booking.status == 'cancelled' %}
+                <p class="text-muted mb-0 small">
+                  Dibatalkan pada {{ booking.cancelled_at|default('-', true) }}
+                </p>
+                {% elif booking.status == 'confirmed' %}
+                <p class="text-muted mb-0 small">Booking dikonfirmasi</p>
+                {% else %}
+                <p class="text-muted mb-0 small">Menunggu konfirmasi</p>
+                {% endif %}
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Pembatalan -->
+<div class="modal fade" id="cancelModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">Konfirmasi Pembatalan Booking</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p>
+          Apakah Anda yakin ingin membatalkan booking
+          <strong>{{ booking.booking_uid }}</strong>?
+        </p>
+
+        <form
+          action="{{ url_for('cancel_booking', booking_uid=booking.booking_uid) }}"
+          method="post"
+          id="cancelForm"
+        >
+          <div class="mb-3">
+            <label for="reason" class="form-label">Alasan Pembatalan:</label>
+            <textarea
+              class="form-control"
+              id="reason"
+              name="reason"
+              rows="3"
+              required
+              placeholder="Masukkan alasan pembatalan..."
+            ></textarea>
+          </div>
+
+          <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            <strong>Perhatian!</strong> Pembatalan booking tidak dapat
+            dibatalkan. Pastikan Anda yakin sebelum melanjutkan.
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Batal
+        </button>
+        <button type="submit" form="cancelForm" class="btn btn-danger">
+          Batalkan Booking
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Pembayaran (jika status pending payment) -->
+{% if booking.status == 'pending_payment' and not payment %}
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title">Proses Pembayaran</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <p>
+          Proses pembayaran untuk booking
+          <strong>{{ booking.booking_uid }}</strong>:
+        </p>
+
+        <form
+          action="/bookings/{{ booking.booking_uid }}/process-payment"
+          method="post"
+          id="paymentForm"
+        >
+          <div class="mb-3">
+            <label for="payment_method" class="form-label"
+              >Metode Pembayaran:</label
+            >
+            <select
+              class="form-select"
+              id="payment_method"
+              name="payment_method"
+              required
+            >
+              <option value="credit_card">Kartu Kredit</option>
+              <option value="bank_transfer">Transfer Bank</option>
+              <option value="e_wallet">E-Wallet</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="amount" class="form-label">Jumlah:</label>
+            <div class="input-group">
+              <span class="input-group-text">Rp</span>
+              <input
+                type="number"
+                class="form-control"
+                id="amount"
+                name="amount"
+                value="{{ booking.total_price|default(0, true) }}"
+                readonly
+              />
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="notes" class="form-label">Catatan:</label>
+            <textarea
+              class="form-control"
+              id="notes"
+              name="notes"
+              rows="2"
+              placeholder="Catatan pembayaran (opsional)..."
+            ></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Batal
+        </button>
+        <button type="submit" form="paymentForm" class="btn btn-success">
+          Proses Pembayaran
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %} {% endblock %}

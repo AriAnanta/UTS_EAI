@@ -1,0 +1,199 @@
+{% extends "base.html" %} {% block title %}Tambah Tipe Kamar - Sistem Manajemen
+Hotel{% endblock %} {% block page_title %}Tambah Tipe Kamar Baru{% endblock %}
+{% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('list_rooms') }}">Kamar</a></li>
+<li class="breadcrumb-item active">Tambah Tipe Kamar</li>
+{% endblock %} {% block content %}
+<div class="row">
+  <div class="col-md-8 mx-auto">
+    <div class="card shadow-sm">
+      <div class="card-header bg-success text-white">
+        <h5 class="mb-0">
+          <i class="fas fa-plus me-2"></i>Form Tambah Tipe Kamar
+        </h5>
+      </div>
+      <div class="card-body">
+        <form
+          action="{{ url_for('add_room_type') }}"
+          method="post"
+          class="needs-validation"
+          novalidate
+        >
+          <div class="mb-3">
+            <label for="type_code" class="form-label"
+              >Kode Tipe <span class="text-danger">*</span></label
+            >
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-code"></i></span>
+              <input
+                type="text"
+                class="form-control"
+                id="type_code"
+                name="type_code"
+                required
+                placeholder="Mis. deluxe"
+                pattern="[a-z0-9_-]+"
+                minlength="3"
+                maxlength="50"
+              />
+            </div>
+            <div class="form-text">
+              Kode unik untuk tipe kamar (huruf kecil, angka, garis bawah, dan
+              strip).
+            </div>
+            <div class="invalid-feedback">
+              Kode tipe wajib diisi dan sesuai format.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="name" class="form-label"
+              >Nama Tipe <span class="text-danger">*</span></label
+            >
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-tag"></i></span>
+              <input
+                type="text"
+                class="form-control"
+                id="name"
+                name="name"
+                required
+                placeholder="Mis. Deluxe Room"
+                maxlength="100"
+              />
+            </div>
+            <div class="invalid-feedback">Nama tipe kamar wajib diisi.</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="description" class="form-label">Deskripsi</label>
+            <div class="input-group">
+              <span class="input-group-text"
+                ><i class="fas fa-align-left"></i
+              ></span>
+              <textarea
+                class="form-control"
+                id="description"
+                name="description"
+                placeholder="Deskripsi lengkap tentang tipe kamar"
+                rows="3"
+              ></textarea>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="price_per_night" class="form-label"
+              >Harga per Malam <span class="text-danger">*</span></label
+            >
+            <div class="input-group">
+              <span class="input-group-text">Rp</span>
+              <input
+                type="number"
+                class="form-control"
+                id="price_per_night"
+                name="price_per_night"
+                required
+                placeholder="Mis. 500000"
+                min="1"
+                step="1"
+              />
+            </div>
+            <div class="invalid-feedback">
+              Harga per malam wajib diisi dengan angka positif.
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between mt-4">
+            <a
+              href="{{ url_for('list_rooms') }}"
+              class="btn btn-outline-secondary"
+            >
+              <i class="fas fa-arrow-left me-1"></i>Kembali
+            </a>
+            <button type="submit" class="btn btn-success">
+              <i class="fas fa-save me-1"></i>Simpan Tipe Kamar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Kartu Contoh Tampilan Kamar -->
+<div class="row mt-4">
+  <div class="col-md-8 mx-auto">
+    <div class="card shadow-sm">
+      <div class="card-header bg-light">
+        <h5 class="mb-0">
+          <i class="fas fa-info-circle me-2"></i>Contoh Format Tipe Kamar
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <div class="card mb-3">
+              <div class="card-body">
+                <h5 class="card-title">Standard Room</h5>
+                <h6 class="card-subtitle mb-2 text-muted">Kode: standard</h6>
+                <p class="card-text">
+                  Kamar standar dengan satu tempat tidur double, TV layar datar,
+                  dan kamar mandi pribadi. Cocok untuk tamu individu atau
+                  pasangan.
+                </p>
+                <div class="text-end">
+                  <span class="badge bg-primary">Rp 500.000/malam</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card mb-3">
+              <div class="card-body">
+                <h5 class="card-title">Deluxe Room</h5>
+                <h6 class="card-subtitle mb-2 text-muted">Kode: deluxe</h6>
+                <p class="card-text">
+                  Kamar deluxe dengan tempat tidur king size, ruang duduk, TV
+                  layar datar, dan kamar mandi mewah. Pemandangan kota.
+                </p>
+                <div class="text-end">
+                  <span class="badge bg-primary">Rp 800.000/malam</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Otomatis konversi kode tipe menjadi lowercase dan sesuai pola
+    const typeCodeInput = document.getElementById("type_code");
+    if (typeCodeInput) {
+      typeCodeInput.addEventListener("input", function () {
+        this.value = this.value.toLowerCase().replace(/[^a-z0-9_-]/g, "");
+      });
+    }
+
+    // Format harga sebagai mata uang
+    const priceInput = document.getElementById("price_per_night");
+    if (priceInput) {
+      priceInput.addEventListener("blur", function () {
+        if (this.value !== "") {
+          const value = parseFloat(this.value);
+          if (!isNaN(value)) {
+            // Tampilkan format mata uang di placeholder
+            this.setAttribute(
+              "placeholder",
+              "Rp " + value.toLocaleString("id-ID")
+            );
+          }
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,418 @@
+{% extends "base.html" %} {% block title %}Tambah Booking Baru - Sistem
+Manajemen Hotel{% endblock %} {% block page_title %}Tambah Booking Baru{%
+endblock %} {% block breadcrumb %}
+<li class="breadcrumb-item">
+  <a href="{{ url_for('list_bookings') }}">Booking</a>
+</li>
+<li class="breadcrumb-item active">Tambah Booking</li>
+{% endblock %} {% block content %}
+<div class="row">
+  <div class="col-lg-8 mx-auto">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">
+          <i class="fas fa-calendar-plus me-2"></i>Form Tambah Booking Baru
+        </h5>
+      </div>
+      <div class="card-body">
+        <form
+          action="{{ url_for('add_booking') }}"
+          method="post"
+          id="booking-form"
+          class="needs-validation"
+          novalidate
+        >
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="guest_uid" class="form-label"
+                  >Pilih Tamu <span class="text-danger">*</span></label
+                >
+                <select
+                  class="form-select"
+                  id="guest_uid"
+                  name="guest_uid"
+                  required
+                >
+                  <option value="" selected disabled>Pilih tamu...</option>
+                  {% for guest in guests %}
+                  <option value="{{ guest.guest_uid }}">
+                    {{ guest.name }} ({{ guest.guest_uid }})
+                  </option>
+                  {% endfor %}
+                </select>
+                <div class="invalid-feedback">Silakan pilih tamu.</div>
+                <div class="form-text">
+                  <a href="{{ url_for('add_guest') }}" target="_blank">
+                    <i class="fas fa-plus-circle me-1"></i>Tambah tamu baru
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="room_type_code" class="form-label"
+                  >Pilih Tipe Kamar <span class="text-danger">*</span></label
+                >
+                <select
+                  class="form-select"
+                  id="room_type_code"
+                  name="room_type_code"
+                  required
+                >
+                  <option value="" selected disabled>
+                    Pilih tipe kamar...
+                  </option>
+                  {% for room in rooms %}
+                  <option
+                    value="{{ room.type_code }}"
+                    data-price="{{ room.price_per_night }}"
+                  >
+                    {{ room.name }} - Rp {{
+                    "{:,.0f}".format(room.price_per_night) }}/malam
+                  </option>
+                  {% endfor %}
+                </select>
+                <div class="invalid-feedback">Silakan pilih tipe kamar.</div>
+                <div class="form-text">
+                  <a
+                    href="{{ url_for('check_room_availability') }}"
+                    target="_blank"
+                  >
+                    <i class="fas fa-search me-1"></i>Cek ketersediaan kamar
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="check_in" class="form-label"
+                  >Tanggal Check-in <span class="text-danger">*</span></label
+                >
+                <input
+                  type="date"
+                  class="form-control"
+                  id="check_in"
+                  name="check_in"
+                  required
+                />
+                <div class="invalid-feedback">
+                  Silakan pilih tanggal check-in.
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="check_out" class="form-label"
+                  >Tanggal Check-out <span class="text-danger">*</span></label
+                >
+                <input
+                  type="date"
+                  class="form-control"
+                  id="check_out"
+                  name="check_out"
+                  required
+                />
+                <div class="invalid-feedback">
+                  Silakan pilih tanggal check-out.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Durasi Menginap</label>
+                <p
+                  class="form-control-plaintext bg-light p-2 rounded"
+                  id="duration"
+                >
+                  -
+                </p>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label class="form-label">Total Harga</label>
+                <p
+                  class="form-control-plaintext bg-light p-2 rounded fw-bold text-success"
+                  id="total_price"
+                >
+                  -
+                </p>
+                <input
+                  type="hidden"
+                  name="total_price"
+                  id="total_price_input"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="special_requests" class="form-label"
+              >Permintaan Khusus</label
+            >
+            <textarea
+              class="form-control"
+              id="special_requests"
+              name="special_requests"
+              rows="3"
+              placeholder="Masukkan permintaan khusus (opsional)..."
+            ></textarea>
+          </div>
+
+          <div class="mb-3">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                value="1"
+                id="terms"
+                name="terms"
+                required
+              />
+              <label class="form-check-label" for="terms">
+                Saya menyetujui
+                <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal"
+                  >syarat dan ketentuan</a
+                >
+                yang berlaku
+              </label>
+              <div class="invalid-feedback">
+                Anda harus menyetujui syarat dan ketentuan.
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between mt-4">
+            <a
+              href="{{ url_for('list_bookings') }}"
+              class="btn btn-outline-secondary"
+            >
+              <i class="fas fa-arrow-left me-1"></i>Kembali
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save me-1"></i>Simpan Booking
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Informasi Syarat dan Ketentuan -->
+<div
+  class="modal fade"
+  id="termsModal"
+  tabindex="-1"
+  aria-labelledby="termsModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="termsModalLabel">Syarat dan Ketentuan</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <h6>Kebijakan Pembayaran:</h6>
+        <ul>
+          <li>
+            Pembayaran harus dilakukan dalam jangka waktu 24 jam setelah booking
+            dibuat.
+          </li>
+          <li>
+            Jika pembayaran tidak dilakukan dalam waktu tersebut, booking akan
+            otomatis dibatalkan.
+          </li>
+        </ul>
+
+        <h6>Kebijakan Pembatalan:</h6>
+        <ul>
+          <li>
+            Pembatalan 7 hari atau lebih sebelum check-in: pengembalian dana
+            penuh.
+          </li>
+          <li>
+            Pembatalan 3-6 hari sebelum check-in: pengembalian 50% dari total
+            biaya.
+          </li>
+          <li>
+            Pembatalan kurang dari 3 hari sebelum check-in: tidak ada
+            pengembalian dana.
+          </li>
+        </ul>
+
+        <h6>Kebijakan Check-in/Check-out:</h6>
+        <ul>
+          <li>Waktu check-in: 14:00</li>
+          <li>Waktu check-out: 12:00</li>
+          <li>
+            Early check-in dan late check-out tersedia dengan biaya tambahan dan
+            tergantung ketersediaan.
+          </li>
+        </ul>
+
+        <h6>Ketentuan Lainnya:</h6>
+        <ul>
+          <li>Tamu wajib menunjukkan identitas resmi saat check-in.</li>
+          <li>
+            Anak-anak di bawah 12 tahun menginap gratis jika menggunakan tempat
+            tidur yang sudah ada.
+          </li>
+          <li>Biaya tambahan berlaku untuk tempat tidur tambahan.</li>
+          <li>
+            Hotel berhak mengenakan biaya atas kerusakan yang disebabkan oleh
+            tamu.
+          </li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Tutup
+        </button>
+        <button
+          type="button"
+          class="btn btn-primary"
+          data-bs-dismiss="modal"
+          onclick="document.getElementById('terms').checked = true;"
+        >
+          Setuju
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const checkInInput = document.getElementById("check_in");
+    const checkOutInput = document.getElementById("check_out");
+    const roomTypeSelect = document.getElementById("room_type_code");
+    const durationOutput = document.getElementById("duration");
+    const totalPriceOutput = document.getElementById("total_price");
+    const totalPriceInput = document.getElementById("total_price_input");
+
+    // Atur tanggal minimum ke hari ini
+    const today = new Date();
+    const todayString = today.toISOString().split("T")[0];
+
+    if (checkInInput) {
+      checkInInput.min = todayString;
+      checkInInput.value = todayString;
+
+      checkInInput.addEventListener("change", function () {
+        if (checkOutInput) {
+          // Pastikan check-out minimal sehari setelah check-in
+          const nextDay = new Date(this.value);
+          nextDay.setDate(nextDay.getDate() + 1);
+          const nextDayString = nextDay.toISOString().split("T")[0];
+
+          checkOutInput.min = this.value;
+
+          // Jika check-out lebih awal dari check-in + 1, update valuenya
+          if (checkOutInput.value <= this.value) {
+            checkOutInput.value = nextDayString;
+          }
+
+          updateCalculations();
+        }
+      });
+    }
+
+    if (checkOutInput) {
+      // Set default check-out ke hari berikutnya
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const tomorrowString = tomorrow.toISOString().split("T")[0];
+
+      checkOutInput.min = todayString;
+      checkOutInput.value = tomorrowString;
+
+      checkOutInput.addEventListener("change", updateCalculations);
+    }
+
+    if (roomTypeSelect) {
+      roomTypeSelect.addEventListener("change", updateCalculations);
+    }
+
+    // Fungsi untuk update kalkulasi durasi dan harga
+    function updateCalculations() {
+      if (
+        checkInInput &&
+        checkOutInput &&
+        roomTypeSelect &&
+        checkInInput.value &&
+        checkOutInput.value &&
+        roomTypeSelect.value
+      ) {
+        // Hitung durasi
+        const checkIn = new Date(checkInInput.value);
+        const checkOut = new Date(checkOutInput.value);
+        const diffTime = Math.abs(checkOut - checkIn);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays > 0) {
+          durationOutput.textContent = `${diffDays} malam`;
+
+          // Hitung total harga
+          const selectedOption =
+            roomTypeSelect.options[roomTypeSelect.selectedIndex];
+          const pricePerNight = parseFloat(
+            selectedOption.getAttribute("data-price") || "0"
+          );
+
+          if (pricePerNight > 0) {
+            const totalPrice = diffDays * pricePerNight;
+            totalPriceOutput.textContent = `Rp ${totalPrice.toLocaleString(
+              "id-ID"
+            )}`;
+            totalPriceInput.value = totalPrice;
+          } else {
+            totalPriceOutput.textContent = "Harga tidak tersedia";
+            totalPriceInput.value = "";
+          }
+        } else {
+          durationOutput.textContent = "Durasi tidak valid";
+          totalPriceOutput.textContent = "-";
+          totalPriceInput.value = "";
+        }
+      } else {
+        durationOutput.textContent = "-";
+        totalPriceOutput.textContent = "-";
+        totalPriceInput.value = "";
+      }
+    }
+
+    // Jalankan kalkulasi awal
+    updateCalculations();
+
+    // Menambahkan listener untuk validasi form
+    const form = document.getElementById("booking-form");
+    if (form) {
+      form.addEventListener("submit", function (event) {
+        if (!this.checkValidity()) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+
+        this.classList.add("was-validated");
+      });
+    }
+  });
+</script>
+{% endblock %}

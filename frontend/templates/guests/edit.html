@@ -1,0 +1,130 @@
+{% extends "base.html" %} {% block title %}Edit Tamu - Sistem Manajemen Hotel{%
+endblock %} {% block page_title %}Edit Tamu{% endblock %} {% block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('list_guests') }}">Tamu</a></li>
+<li class="breadcrumb-item active">Edit Tamu</li>
+{% endblock %} {% block content %}
+<div class="row">
+  <div class="col-md-8 mx-auto">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">
+          <i class="fas fa-user-edit me-2"></i>Form Edit Tamu
+        </h5>
+      </div>
+      <div class="card-body">
+        <form
+          action="{{ url_for('edit_guest', guest_uid=guest.guest_uid) }}"
+          method="post"
+          class="needs-validation"
+          novalidate
+        >
+          <div class="mb-3">
+            <label for="guest_uid" class="form-label">ID Tamu</label>
+            <div class="input-group">
+              <span class="input-group-text"
+                ><i class="fas fa-fingerprint"></i
+              ></span>
+              <input
+                type="text"
+                class="form-control"
+                id="guest_uid"
+                value="{{ guest.guest_uid }}"
+                readonly
+              />
+            </div>
+            <div class="form-text">ID Tamu tidak dapat diubah.</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="name" class="form-label"
+              >Nama Lengkap <span class="text-danger">*</span></label
+            >
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-user"></i></span>
+              <input
+                type="text"
+                class="form-control"
+                id="name"
+                name="name"
+                required
+                value="{{ guest.name }}"
+                maxlength="100"
+              />
+            </div>
+            <div class="invalid-feedback">Nama lengkap wajib diisi.</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="email" class="form-label"
+              >Email <span class="text-danger">*</span></label
+            >
+            <div class="input-group">
+              <span class="input-group-text"
+                ><i class="fas fa-envelope"></i
+              ></span>
+              <input
+                type="email"
+                class="form-control"
+                id="email"
+                name="email"
+                required
+                value="{{ guest.email }}"
+                maxlength="120"
+              />
+            </div>
+            <div class="invalid-feedback">
+              Email wajib diisi dengan format yang benar.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="phone" class="form-label">Nomor Telepon</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-phone"></i></span>
+              <input
+                type="text"
+                class="form-control"
+                id="phone"
+                name="phone"
+                value="{{ guest.phone }}"
+                pattern="[0-9]+"
+                maxlength="20"
+              />
+            </div>
+            <div class="form-text">
+              Masukkan nomor telepon tanpa tanda baca.
+            </div>
+            <div class="invalid-feedback">
+              Nomor telepon hanya boleh berisi angka.
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between mt-4">
+            <a
+              href="{{ url_for('view_guest', guest_uid=guest.guest_uid) }}"
+              class="btn btn-outline-secondary"
+            >
+              <i class="fas fa-arrow-left me-1"></i>Kembali
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save me-1"></i>Simpan Perubahan
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Validasi nomor telepon - hanya angka
+    const phoneInput = document.getElementById("phone");
+    if (phoneInput) {
+      phoneInput.addEventListener("input", function () {
+        this.value = this.value.replace(/[^0-9]/g, "");
+      });
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,224 @@
+{% extends "base.html" %} {% block title %}Detail Pembayaran - Sistem Manajemen
+Hotel{% endblock %} {% block page_title %}Detail Pembayaran{% endblock %} {%
+block breadcrumb %}
+<li class="breadcrumb-item">
+  <a href="{{ url_for('list_payments') }}">Pembayaran</a>
+</li>
+<li class="breadcrumb-item active">Detail Pembayaran</li>
+{% endblock %} {% block content %}
+<div class="row">
+  <!-- Detail Pembayaran -->
+  <div class="col-lg-8">
+    <div class="card shadow-sm mb-4">
+      <div
+        class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
+      >
+        <h5 class="mb-0">
+          <i class="fas fa-receipt me-2"></i>Detail Transaksi Pembayaran
+        </h5>
+        <span
+          class="badge {% if payment.status == 'success' %}bg-success{% elif payment.status == 'failed' %}bg-danger{% elif payment.status == 'processing' %}bg-warning{% else %}bg-secondary{% endif %} fs-6"
+        >
+          {% if payment.status == 'success' %}Berhasil {% elif payment.status ==
+          'failed' %}Gagal {% elif payment.status == 'processing' %}Diproses {%
+          else %}{{ payment.status }} {% endif %}
+        </span>
+      </div>
+      <div class="card-body">
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <h6 class="text-muted mb-2">ID Pembayaran</h6>
+            <p class="fs-5 fw-bold">{{ payment.payment_uid }}</p>
+          </div>
+          <div class="col-md-6">
+            <h6 class="text-muted mb-2">ID Booking</h6>
+            <p class="fs-5">
+              <a
+                href="{{ url_for('view_booking', booking_uid=payment.booking_uid) }}"
+              >
+                {{ payment.booking_uid }}
+              </a>
+            </p>
+          </div>
+        </div>
+
+        <div class="row mb-4">
+          <div class="col-md-6">
+            <h6 class="text-muted mb-2">Jumlah Pembayaran</h6>
+            <p class="fs-4 fw-bold text-success">
+              Rp {{ "{:,.0f}".format(payment.requested_amount) }}
+            </p>
+          </div>
+          <div class="col-md-6">
+            <h6 class="text-muted mb-2">Status Transaksi</h6>
+            <p>
+              {% if payment.status == 'success' %}
+              <span class="badge bg-success p-2 fs-6">Pembayaran Berhasil</span>
+              {% elif payment.status == 'failed' %}
+              <span class="badge bg-danger p-2 fs-6">Pembayaran Gagal</span>
+              {% if payment.failure_reason %}
+              <br /><small class="text-danger mt-1"
+                >Alasan: {{ payment.failure_reason }}</small
+              >
+              {% endif %} {% elif payment.status == 'processing' %}
+              <span class="badge bg-warning p-2 fs-6">Sedang Diproses</span>
+              {% else %}
+              <span class="badge bg-secondary p-2 fs-6"
+                >{{ payment.status }}</span
+              >
+              {% endif %}
+            </p>
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <h6 class="text-muted mb-2">Waktu Permintaan</h6>
+            <p>{{ payment.request_time }}</p>
+          </div>
+          <div class="col-md-6">
+            <h6 class="text-muted mb-2">Waktu Pemrosesan</h6>
+            <p>
+              {{ payment.processed_at if payment.processed_at else 'Belum
+              diproses' }}
+            </p>
+          </div>
+        </div>
+
+        {% if payment.is_fraud %}
+        <div class="alert alert-danger mt-3">
+          <div class="d-flex align-items-center">
+            <div>
+              <i class="fas fa-exclamation-triangle fs-3 me-3"></i>
+            </div>
+            <div>
+              <h5 class="alert-heading mb-1">Terdeteksi Fraud!</h5>
+              <p class="mb-0">
+                Sistem deteksi fraud mendeteksi transaksi ini sebagai fraud.
+                <br />
+                <a
+                  href="{{ url_for('view_fraud_detail', payment_uid=payment.payment_uid) }}"
+                  class="btn btn-sm btn-danger mt-2"
+                >
+                  <i class="fas fa-shield-alt me-1"></i>Lihat Analisis Fraud
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+        {% elif payment.fraud_score and payment.fraud_score > 0.5 %}
+        <div class="alert alert-warning mt-3">
+          <div class="d-flex align-items-center">
+            <div>
+              <i class="fas fa-exclamation-circle fs-3 me-3"></i>
+            </div>
+            <div>
+              <h5 class="alert-heading mb-1">Transaksi Mencurigakan</h5>
+              <p class="mb-0">
+                Transaksi ini memiliki skor fraud {{
+                "%.1f"|format(payment.fraud_score * 100) }}% dan ditandai
+                sebagai mencurigakan.
+                <br />
+                <a
+                  href="{{ url_for('view_fraud_detail', payment_uid=payment.payment_uid) }}"
+                  class="btn btn-sm btn-warning mt-2"
+                >
+                  <i class="fas fa-shield-alt me-1"></i>Lihat Analisis Fraud
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+        {% endif %} {% if payment.message %}
+        <div class="alert alert-info mt-3">
+          <i class="fas fa-info-circle me-2"></i>{{ payment.message }}
+        </div>
+        {% endif %}
+
+        <div class="mt-4">
+          <a
+            href="{{ url_for('list_payments') }}"
+            class="btn btn-outline-secondary"
+          >
+            <i class="fas fa-arrow-left me-1"></i>Kembali ke Daftar Pembayaran
+          </a>
+
+          <a
+            href="{{ url_for('view_booking', booking_uid=payment.booking_uid) }}"
+            class="btn btn-primary"
+          >
+            <i class="fas fa-calendar-check me-1"></i>Lihat Detail Booking
+          </a>
+
+          {% if payment.status == 'success' %}
+          <a
+            href="{{ url_for('view_fraud_detail', payment_uid=payment.payment_uid) }}"
+            class="btn btn-danger"
+          >
+            <i class="fas fa-shield-alt me-1"></i>Analisis Fraud
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail Booking -->
+  <div class="col-lg-4">
+    {% if booking %}
+    <div class="card shadow-sm">
+      <div class="card-header bg-success text-white">
+        <h5 class="mb-0">
+          <i class="fas fa-calendar-check me-2"></i>Ringkasan Booking
+        </h5>
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <h6 class="text-muted mb-1">Status Booking</h6>
+          <p class="mb-3">
+            {% if booking.status == 'confirmed' %}
+            <span class="badge bg-success p-2">Terkonfirmasi</span>
+            {% elif booking.status == 'pending_payment' %}
+            <span class="badge bg-warning p-2">Menunggu Pembayaran</span>
+            {% elif booking.status == 'cancelled' %}
+            <span class="badge bg-danger p-2">Dibatalkan</span>
+            {% else %}
+            <span class="badge bg-secondary p-2">{{ booking.status }}</span>
+            {% endif %}
+          </p>
+
+          <h6 class="text-muted mb-1">Nama Tamu</h6>
+          <p class="mb-3 fw-bold">{{ booking.guest_name }}</p>
+
+          <h6 class="text-muted mb-1">Tipe Kamar</h6>
+          <p class="mb-3">{{ booking.room_name }}</p>
+
+          <div class="d-flex justify-content-between mb-3">
+            <div>
+              <h6 class="text-muted mb-1">Check-in</h6>
+              <p>{{ booking.check_in_date }}</p>
+            </div>
+            <div>
+              <h6 class="text-muted mb-1">Check-out</h6>
+              <p>{{ booking.check_out_date }}</p>
+            </div>
+          </div>
+
+          <h6 class="text-muted mb-1">Total Biaya</h6>
+          <p class="fs-5 fw-bold text-success">
+            Rp {{ "{:,.0f}".format(booking.total_price) }}
+          </p>
+        </div>
+
+        <a
+          href="{{ url_for('view_booking', booking_uid=booking.booking_uid) }}"
+          class="btn btn-outline-success w-100"
+        >
+          <i class="fas fa-eye me-1"></i>Lihat Detail Lengkap
+        </a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

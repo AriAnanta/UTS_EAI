@@ -1,0 +1,151 @@
+{% extends "base.html" %} {% block title %}Tambah Tamu Baru - Sistem Manajemen
+Hotel{% endblock %} {% block page_title %}Tambah Tamu Baru{% endblock %} {%
+block breadcrumb %}
+<li class="breadcrumb-item"><a href="{{ url_for('list_guests') }}">Tamu</a></li>
+<li class="breadcrumb-item active">Tambah Tamu</li>
+{% endblock %} {% block content %}
+<div class="row">
+  <div class="col-md-8 mx-auto">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <h5 class="mb-0">
+          <i class="fas fa-user-plus me-2"></i>Form Tambah Tamu Baru
+        </h5>
+      </div>
+      <div class="card-body">
+        <form
+          action="{{ url_for('add_guest') }}"
+          method="post"
+          class="needs-validation"
+          novalidate
+        >
+          <div class="mb-3">
+            <label for="guest_uid" class="form-label"
+              >ID Tamu <span class="text-danger">*</span></label
+            >
+            <div class="input-group">
+              <span class="input-group-text"
+                ><i class="fas fa-fingerprint"></i
+              ></span>
+              <input
+                type="text"
+                class="form-control"
+                id="guest_uid"
+                name="guest_uid"
+                required
+                placeholder="Mis. GUEST123"
+                pattern="[A-Za-z0-9]+"
+                minlength="4"
+                maxlength="80"
+              />
+            </div>
+            <div class="form-text">
+              Kombinasi huruf dan angka tanpa spasi atau simbol khusus.
+            </div>
+            <div class="invalid-feedback">
+              ID Tamu wajib diisi dan hanya boleh berisi huruf dan angka.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="name" class="form-label"
+              >Nama Lengkap <span class="text-danger">*</span></label
+            >
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-user"></i></span>
+              <input
+                type="text"
+                class="form-control"
+                id="name"
+                name="name"
+                required
+                placeholder="Masukkan nama lengkap tamu"
+                maxlength="100"
+              />
+            </div>
+            <div class="invalid-feedback">Nama lengkap wajib diisi.</div>
+          </div>
+
+          <div class="mb-3">
+            <label for="email" class="form-label"
+              >Email <span class="text-danger">*</span></label
+            >
+            <div class="input-group">
+              <span class="input-group-text"
+                ><i class="fas fa-envelope"></i
+              ></span>
+              <input
+                type="email"
+                class="form-control"
+                id="email"
+                name="email"
+                required
+                placeholder="email@example.com"
+                maxlength="120"
+              />
+            </div>
+            <div class="invalid-feedback">
+              Email wajib diisi dengan format yang benar.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="phone" class="form-label">Nomor Telepon</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-phone"></i></span>
+              <input
+                type="text"
+                class="form-control"
+                id="phone"
+                name="phone"
+                placeholder="Mis. 081234567890"
+                pattern="[0-9]+"
+                maxlength="20"
+              />
+            </div>
+            <div class="form-text">
+              Opsional, masukkan nomor telepon tanpa tanda baca.
+            </div>
+            <div class="invalid-feedback">
+              Nomor telepon hanya boleh berisi angka.
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between mt-4">
+            <a
+              href="{{ url_for('list_guests') }}"
+              class="btn btn-outline-secondary"
+            >
+              <i class="fas fa-arrow-left me-1"></i>Kembali
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <i class="fas fa-save me-1"></i>Simpan Tamu
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Validasi ID otomatis - ubah ke uppercase dan hapus karakter yang tidak valid
+    const guestIdInput = document.getElementById("guest_uid");
+    if (guestIdInput) {
+      guestIdInput.addEventListener("input", function () {
+        this.value = this.value.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+      });
+    }
+
+    // Validasi nomor telepon - hanya angka
+    const phoneInput = document.getElementById("phone");
+    if (phoneInput) {
+      phoneInput.addEventListener("input", function () {
+        this.value = this.value.replace(/[^0-9]/g, "");
+      });
+    }
+  });
+</script>
+{% endblock %}
