@@ -120,7 +120,6 @@ Hotel{% endblock %} {% block page_title %}Tambah Tipe Kamar Baru{% endblock %}
   </div>
 </div>
 
-<!-- Kartu Contoh Tampilan Kamar -->
 <div class="row mt-4">
   <div class="col-md-8 mx-auto">
     <div class="card shadow-sm">
@@ -170,7 +169,7 @@ Hotel{% endblock %} {% block page_title %}Tambah Tipe Kamar Baru{% endblock %}
 {% endblock %} {% block extra_js %}
 <script>
   document.addEventListener("DOMContentLoaded", function () {
-    // Otomatis konversi kode tipe menjadi lowercase dan sesuai pola
+    // Otomatis konversi kode tipe menjadi lowercase 
     const typeCodeInput = document.getElementById("type_code");
     if (typeCodeInput) {
       typeCodeInput.addEventListener("input", function () {
@@ -185,7 +184,6 @@ Hotel{% endblock %} {% block page_title %}Tambah Tipe Kamar Baru{% endblock %}
         if (this.value !== "") {
           const value = parseFloat(this.value);
           if (!isNaN(value)) {
-            // Tampilkan format mata uang di placeholder
             this.setAttribute(
               "placeholder",
               "Rp " + value.toLocaleString("id-ID")

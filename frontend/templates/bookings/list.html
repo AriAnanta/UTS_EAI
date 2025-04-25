@@ -286,9 +286,7 @@ breadcrumb %}
 
     filterButtons.forEach(function (button) {
       button.addEventListener("click", function () {
-        // Hapus kelas active dari semua tombol
         filterButtons.forEach((btn) => btn.classList.remove("active"));
-        // Tambahkan kelas active ke tombol yang diklik
         this.classList.add("active");
 
         const filterValue = this.getAttribute("data-filter");
