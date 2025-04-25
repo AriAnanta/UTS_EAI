@@ -13,7 +13,6 @@ BOOKING_SERVICE_URL = os.environ.get('BOOKING_SERVICE_URL', 'http://localhost:50
 ROOM_SERVICE_URL = os.environ.get('ROOM_SERVICE_URL', 'http://localhost:5003')
 PAYMENT_SERVICE_URL = os.environ.get('PAYMENT_SERVICE_URL', 'http://localhost:5004')
 
-# Tambahkan context processor untuk menyediakan variabel now ke semua template
 @app.context_processor
 def inject_now():
     return {'now': datetime.now()}
@@ -375,7 +374,7 @@ def view_booking(booking_uid):
             except:
                 room = {'name': 'Informasi kamar tidak tersedia'}
                 
-            # Ambil informasi pembayaran jika ada
+            # Ambil informasi pembayaran 
             payment = None
             if booking.get('payment_id'):
                 try:
@@ -448,12 +447,10 @@ def view_payment(payment_uid):
         
         payment = payment_response.json()
         
-        # Ambil data booking terkait
+        # Ambil data booking
         booking_response = requests.get(f"{BOOKING_SERVICE_URL}/bookings/{payment['booking_uid']}")
         if booking_response.ok:
             booking = booking_response.json()
-            
-            # Ambil data tambahan untuk booking
             try:
                 # Ambil data tamu
                 guest_response = requests.get(f"{GUEST_SERVICE_URL}/guests/{booking['guest_uid']}")
@@ -471,7 +468,6 @@ def view_payment(payment_uid):
                 else:
                     booking['room_name'] = "Data kamar tidak tersedia"
             except:
-                # Tangani jika gagal mendapatkan data tambahan
                 booking['guest_name'] = "Data tamu tidak tersedia"
                 booking['room_name'] = "Data kamar tidak tersedia"
         else:
@@ -486,32 +482,27 @@ def view_payment(payment_uid):
 def process_payment(booking_uid):
     """Memproses pembayaran untuk booking"""
     try:
-        # Dapatkan data booking terlebih dahulu
         booking_response = requests.get(f"{BOOKING_SERVICE_URL}/bookings/{booking_uid}")
         if not booking_response.ok:
             flash("Booking tidak ditemukan", "danger")
             return redirect(url_for('list_bookings'))
         
         booking = booking_response.json()
-        
-        # Validasi status booking harus pending_payment
+
         if booking['status'] != 'pending_payment':
             flash("Booking ini tidak dalam status menunggu pembayaran", "warning")
             return redirect(url_for('view_booking', booking_uid=booking_uid))
-        
-        # Siapkan data pembayaran
+
         payment_data = {
             'booking_uid': booking_uid,
             'amount': booking['total_price']
         }
         
-        # Kirim permintaan ke payment service
         response = requests.post(f"{PAYMENT_SERVICE_URL}/payments", json=payment_data)
         
         if response.ok:
             payment = response.json()
             
-            # Berdasarkan status pembayaran, tampilkan pesan yang sesuai
             if payment['status'] == 'success':
                 flash("Pembayaran berhasil diproses", "success")
             elif payment['status'] == 'failed':
@@ -519,7 +510,6 @@ def process_payment(booking_uid):
             else:
                 flash("Pembayaran sedang diproses", "info")
                 
-            # Redirect ke halaman detail pembayaran
             return redirect(url_for('view_payment', payment_uid=payment['payment_uid']))
         else:
             error_msg = "Gagal memproses pembayaran"
@@ -587,7 +577,6 @@ def view_fraud_analysis():
 def view_fraud_detail(payment_uid):
     """Menampilkan detail analisis fraud dari satu transaksi pembayaran"""
     try:
-        # Ambil analisis fraud dari payment service
         print(f"Meminta detail fraud untuk {payment_uid} dari {PAYMENT_SERVICE_URL}/payments/{payment_uid}/analyze-fraud")
         response = requests.get(f"{PAYMENT_SERVICE_URL}/payments/{payment_uid}/analyze-fraud", timeout=10)
         
